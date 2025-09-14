@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>ABC Alumnos y Carreras</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>ABC de Alumnos y Carreras</h1>
+
+  <div class="contenedor">
+    <aside class="menu">
+      <h2>Entidades</h2>
+      <button data-entidad="alumnos">Alumnos</button>
+      <button data-entidad="carreras">Carreras</button>
+      <button data-entidad="asignar">Asignar alumno a carrera</button>
+    </aside>
+
+    <main class="acciones">
+      <h2 id="titulo">Seleccione una entidad</h2>
+
+      <div class="acciones-botones" id="accionesBotones" style="display:none;">
+        <button data-accion="agregar">Agregar</button>
+        <button data-accion="borrar">Borrar</button>
+        <button data-accion="cambiar">Cambiar</button>
+        <button data-accion="ver">Ver listado</button>
+      </div>
+
+      <div id="contenido">
+      </div>
+    </main>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
