@@ -34,8 +34,13 @@ document.querySelectorAll('#accionesBotones button').forEach(btn => {
 
 function mostrarFormularioAgregar() {
   const form = document.createElement('form');
+
+  const placeholder = entidadActual === 'alumnos'
+    ? 'Nombre del alumno'
+    : 'Nombre de la carrera';
+
   form.innerHTML = `
-    <input type="text" placeholder="Nombre de la carrera" required>
+    <input type="text" placeholder="${placeholder}" required>
     <button>Agregar</button>
   `;
   
@@ -43,16 +48,26 @@ function mostrarFormularioAgregar() {
     e.preventDefault();
     const nombre = form.querySelector('input').value;
 
+    //Entidad actual
+    const endpoint = entidadActual === 'alumnos'
+      ? 'http://localhost:3000/alumnos' 
+      : 'http://localhost:3000/carreras';
+
+    const bodyData = entidadActual ===  'alumnos'
+      ? { nombre: nombre } 
+      : { titulo: nombre };
+
     try {
-      const resp = await fetch('http://localhost:3000/carreras', {
+      const resp = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ titulo: nombre })
+        body: JSON.stringify(bodyData)
       });
 
       const data = await resp.json();
       if (resp.ok) {
-        alert('Carrera agregada con ID ' + data.id);
+        alert(`${entidadActual.slice(0, -1)} agregad${entidadActual === 'alumnos' ? 
+          'o' : 'a'} con ID ${data.id}`);
         form.reset();
       } else {
         alert('Error: ' + data.error);
