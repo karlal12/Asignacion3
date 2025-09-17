@@ -3,6 +3,7 @@ const accionesBotones = document.getElementById('accionesBotones');
 const contenido = document.getElementById('contenido');
 let entidadActual = null;
 
+// Al hacer clic en una entidad (Alumnos / Carreras / Asignar)
 document.querySelectorAll('.menu button').forEach(btn => {
   btn.addEventListener('click', () => {
     entidadActual = btn.dataset.entidad;
@@ -19,6 +20,7 @@ document.querySelectorAll('.menu button').forEach(btn => {
   });
 });
 
+// Al hacer clic en acción (Agregar / Borrar / Cambiar / Ver)
 document.querySelectorAll('#accionesBotones button').forEach(btn => {
   btn.addEventListener('click', () => {
     const accion = btn.dataset.accion;
@@ -31,12 +33,39 @@ document.querySelectorAll('#accionesBotones button').forEach(btn => {
   });
 });
 
+// ---------- FORMULARIOS ----------
+
 function mostrarFormularioAgregar() {
   const form = document.createElement('form');
   form.innerHTML = `
-    <input type="text" placeholder="Nombre">
+    <input type="text" placeholder="Nombre de la carrera" required>
     <button>Agregar</button>
   `;
+  
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const nombre = form.querySelector('input').value;
+
+    try {
+      const resp = await fetch('http://localhost:3000/carreras', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ titulo: nombre })
+      });
+
+      const data = await resp.json();
+      if (resp.ok) {
+        alert('Carrera agregada con ID ' + data.id);
+        form.reset();
+      } else {
+        alert('Error: ' + data.error);
+      }
+    } catch (err) {
+      alert('Error al conectar con el servidor');
+      console.error(err);
+    }
+  });
+
   contenido.appendChild(form);
 }
 
@@ -44,8 +73,8 @@ function mostrarFormularioBorrar() {
   const form = document.createElement('form');
   form.innerHTML = `
     <select>
-      <option>Opcion 1</option>
-      <option>Opcion 2</option>
+      <option>Opción 1</option>
+      <option>Opción 2</option>
     </select>
     <button>Borrar</button>
   `;
@@ -56,8 +85,8 @@ function mostrarFormularioCambiar() {
   const form = document.createElement('form');
   form.innerHTML = `
     <select>
-      <option>Opcion 1</option>
-      <option>Opcion 2</option>
+      <option>Opción 1</option>
+      <option>Opción 2</option>
     </select>
     <input type="text" placeholder="Nuevo nombre">
     <button>Cambiar</button>
