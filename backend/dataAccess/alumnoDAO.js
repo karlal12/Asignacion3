@@ -1,13 +1,12 @@
 const db = require('../config/db');
 
 class AlumnoDao {
-    constructor() { }
+    constructor() {}
 
-    // Insertar un nuevo alumno (grave acento) ALT 96
+    // Insertar un nuevo alumno
     insertarAlumno(alumno, callback) {
-        const insertQuery = `INSERT INTO alumnos (nombre) VALUES ('${alumno.nombre}')`;
-
-        db.query(insertQuery, (err, result) => {
+        const insertQuery = 'INSERT INTO alumnos (nombre) VALUES (?)';
+        db.query(insertQuery, [alumno.nombre], (err, result) => {
             if (err) {
                 callback(err);
             } else {
@@ -15,8 +14,42 @@ class AlumnoDao {
             }
         });
     }
-    // Seleccionar todos los alumnos (agrega el código correspondiente)
-    // Actualizar un alumno (agrega el código correspondiente)
-    // Eliminar un alumno por su ID (agrega el código correspondiente)
+
+    // Seleccionar todos los alumnos
+    obtenerTodos(callback) {
+        const selectQuery = 'SELECT * FROM alumnos';
+        db.query(selectQuery, (err, results) => {
+            if (err) {
+                callback(err);
+            } else {
+                callback(null, results);
+            }
+        });
+    }
+
+    // Actualizar un alumno por ID
+    actualizarAlumno(alumno, callback) {
+        const updateQuery = 'UPDATE alumnos SET nombre = ?, carrera = ? WHERE id = ?';
+        db.query(updateQuery, [alumno.nombre, alumno.carrera, alumno.id], (err, result) => {
+            if (err) {
+                callback(err);
+            } else {
+                callback(null, result);
+            }
+        });
+    }
+
+    // Eliminar un alumno por ID
+    eliminarAlumno(id, callback) {
+        const deleteQuery = 'DELETE FROM alumnos WHERE id = ?';
+        db.query(deleteQuery, [id], (err, result) => {
+            if (err) {
+                callback(err);
+            } else {
+                callback(null, result);
+            }
+        });
+    }
 }
+
 module.exports = new AlumnoDao();
