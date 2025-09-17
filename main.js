@@ -44,8 +44,8 @@ function mostrarFormularioBorrar() {
   const form = document.createElement('form');
   form.innerHTML = `
     <select>
-      <option>Elemento 1</option>
-      <option>Elemento 2</option>
+      <option>Opcion 1</option>
+      <option>Opcion 2</option>
     </select>
     <button>Borrar</button>
   `;
@@ -56,8 +56,8 @@ function mostrarFormularioCambiar() {
   const form = document.createElement('form');
   form.innerHTML = `
     <select>
-      <option>Elemento 1</option>
-      <option>Elemento 2</option>
+      <option>Opcion 1</option>
+      <option>Opcion 2</option>
     </select>
     <input type="text" placeholder="Nuevo nombre">
     <button>Cambiar</button>
@@ -68,9 +68,9 @@ function mostrarFormularioCambiar() {
 function mostrarListado() {
   const lista = document.createElement('ul');
   lista.innerHTML = `
-    <li>Elemento 1</li>
-    <li>Elemento 2</li>
-    <li>Elemento 3</li>
+    <li>1</li>
+    <li>2</li>
+    <li>3</li>
   `;
   contenido.appendChild(lista);
 }
