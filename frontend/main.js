@@ -164,15 +164,25 @@ function mostrarListado() {
         console.error(err);
         alert('Error al obtener el listado de carreras');
       });
+
   } else if (entidadActual === 'alumnos') {
-    fetch('http://localhost:3000/alumnos')
+    fetch('http://localhost:3000/carreras')
       .then(res => res.json())
-      .then(data => {
+      .then(carreras => {
+        const mapaCarreras = {};
+        carreras.forEach(c => mapaCarreras[c.id] = c.titulo);
+        
+        return fetch('http://localhost:3000/alumnos')
+          .then(res => res.json())
+          .then(alumnos => ({ alumnos, mapaCarreras }));
+      })
+      .then(({ alumnos, mapaCarreras }) => {
         contenido.innerHTML = '';
         const lista = document.createElement('ul');
-        data.forEach(alumno => {
+        alumnos.forEach(alumno => {
+          const tituloCarrera = mapaCarreras[alumno.carrera] || 'Sin carrera';
           const li = document.createElement('li');
-          li.textContent = `${alumno.id} - ${alumno.nombre}`;
+          li.textContent = `${alumno.id} - ${alumno.nombre} - ${tituloCarrera}`;
           lista.appendChild(li);
         });
         contenido.appendChild(lista);
@@ -183,6 +193,7 @@ function mostrarListado() {
       });
   }
 }
+
 
 
 function mostrarFormularioAsignar() {

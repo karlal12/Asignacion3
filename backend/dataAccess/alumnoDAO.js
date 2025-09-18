@@ -50,6 +50,20 @@ class AlumnoDao {
             }
         });
     }
+
+    // Obtener un alumno por ID
+    obtenerAlumnoPorId(id, callback) {
+        const selectQuery = 'SELECT * FROM alumnos WHERE id = ?';
+        db.query(selectQuery, [id], (err, results) => {
+            if (err) {
+                callback(err, null);
+            } else {
+                callback(null, results[0]);
+            }
+        });
+    }
+
+    
 }
 
 module.exports = new AlumnoDao();

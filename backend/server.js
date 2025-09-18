@@ -176,7 +176,7 @@ const server = http.createServer((req, res) => {
   }
 
 
-  // Asignar alumno a carrera
+// Asignar alumno a carrera
 if (req.method === 'POST' && req.url === '/asignaciones') {
   let body = '';
   req.on('data', chunk => body += chunk.toString());
@@ -189,21 +189,29 @@ if (req.method === 'POST' && req.url === '/asignaciones') {
       return res.end(JSON.stringify({ error: 'Faltan alumnoId o carreraId' }));
     }
 
-    alumnoDAO.actualizarAlumno(
-      { id: alumnoId, nombre: null, carrera: carreraId },
-      (err, result) => {
-        if (err) {
-          res.writeHead(500, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ error: err.message }));
-        } else {
-          res.writeHead(200, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ success: true, affectedRows: result.affectedRows }));
-        }
+    alumnoDAO.obtenerAlumnoPorId(alumnoId, (err, alumno) => {
+      if (err || !alumno) {
+        res.writeHead(404, { 'Content-Type': 'application/json' });
+        return res.end(JSON.stringify({ error: 'Alumno no encontrado' }));
       }
-    );
+
+      alumnoDAO.actualizarAlumno(
+        { id: alumnoId, nombre: alumno.nombre, carrera: carreraId },
+        (err, result) => {
+          if (err) {
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: err.message }));
+          } else {
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ success: true, affectedRows: result.affectedRows }));
+          }
+        }
+      );
+    });
   });
   return;
 }
+
 
 
   res.writeHead(404, { 'Content-Type': 'application/json' });
