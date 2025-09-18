@@ -9,7 +9,7 @@ document.querySelectorAll('.menu button').forEach(btn => {
     titulo.textContent = entidadActual === 'asignar'
       ? 'Asignar alumno a carrera'
       : `Gestionar ${entidadActual}`;
-    
+
     accionesBotones.style.display = entidadActual === 'asignar' ? 'none' : 'flex';
     contenido.innerHTML = '';
 
@@ -43,18 +43,18 @@ function mostrarFormularioAgregar() {
     <input type="text" placeholder="${placeholder}" required>
     <button>Agregar</button>
   `;
-  
+
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const nombre = form.querySelector('input').value;
 
     //Entidad actual
     const endpoint = entidadActual === 'alumnos'
-      ? 'http://localhost:3000/alumnos' 
+      ? 'http://localhost:3000/alumnos'
       : 'http://localhost:3000/carreras';
 
-    const bodyData = entidadActual ===  'alumnos'
-      ? { nombre: nombre } 
+    const bodyData = entidadActual === 'alumnos'
+      ? { nombre: nombre }
       : { titulo: nombre };
 
     try {
@@ -66,7 +66,7 @@ function mostrarFormularioAgregar() {
 
       const data = await resp.json();
       if (resp.ok) {
-        alert(`${entidadActual.slice(0, -1)} agregad${entidadActual === 'alumnos' ? 
+        alert(`${entidadActual.slice(0, -1)} agregad${entidadActual === 'alumnos' ?
           'o' : 'a'} con ID ${data.id}`);
         form.reset();
       } else {
@@ -124,8 +124,23 @@ function mostrarListado() {
         console.error(err);
         alert('Error al obtener el listado de carreras');
       });
-  } else {
-    contenido.innerHTML = '<p>Listado no disponible todavía</p>';
+  } else if (entidadActual === 'alumnos') {
+    fetch('http://localhost:3000/alumnos')
+      .then(res => res.json())
+      .then(data => {
+        contenido.innerHTML = '';
+        const lista = document.createElement('ul');
+        data.forEach(alumno => {
+          const li = document.createElement('li');
+          li.textContent = `${alumno.id} - ${alumno.nombre}`;
+          lista.appendChild(li);
+        });
+        contenido.appendChild(lista);
+      })
+      .catch(err => {
+        console.error(err);
+        alert('Error al obtener el listado de alumnos');
+      });
   }
 }
 

@@ -72,6 +72,21 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+    //Listar alumnos
+  if (req.method === 'GET' && req.url === '/alumnos') {
+    alumnoDAO.obtenerTodos((err, resultados) => {
+      if (err) {
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Error al obtener alumnos' }));
+      } else {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(resultados));
+      }
+    });
+    return;
+  }
+
+
   res.writeHead(404, {'Content-Type':'application/json'});
   res.end(JSON.stringify({ error: 'No encontrado' }));
 });
