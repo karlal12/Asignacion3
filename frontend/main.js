@@ -116,7 +116,7 @@ function mostrarFormularioBorrar() {
           .then(res => res.json())
           .then(() => {
             alert('Eliminado con éxito');
-            mostrarListado(); // refrescar listado automáticamente
+            mostrarListado(); 
           })
           .catch(err => {
             console.error(err);
