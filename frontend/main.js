@@ -107,14 +107,28 @@ function mostrarFormularioCambiar() {
 }
 
 function mostrarListado() {
-  const lista = document.createElement('ul');
-  lista.innerHTML = `
-    <li>1</li>
-    <li>2</li>
-    <li>3</li>
-  `;
-  contenido.appendChild(lista);
+  if (entidadActual === 'carreras') {
+    fetch('http://localhost:3000/carreras')
+      .then(res => res.json())
+      .then(data => {
+        contenido.innerHTML = '';
+        const lista = document.createElement('ul');
+        data.forEach(carrera => {
+          const li = document.createElement('li');
+          li.textContent = `${carrera.id} - ${carrera.titulo}`;
+          lista.appendChild(li);
+        });
+        contenido.appendChild(lista);
+      })
+      .catch(err => {
+        console.error(err);
+        alert('Error al obtener el listado de carreras');
+      });
+  } else {
+    contenido.innerHTML = '<p>Listado no disponible todavía</p>';
+  }
 }
+
 
 function mostrarFormularioAsignar() {
   const form = document.createElement('form');

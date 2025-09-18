@@ -10,7 +10,7 @@ const server = http.createServer((req, res) => {
   if (req.method === 'OPTIONS') {
     res.writeHead(204); return res.end();
   }
-
+//CARRERAS
   if (req.method === 'POST' && req.url === '/carreras') {
     let body = '';
     req.on('data', chunk => body += chunk.toString());
@@ -34,6 +34,21 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  if (req.method === 'GET' && req.url === '/carreras') {
+    carreraDAO.obtenerTodas((err, resultados) => {
+      if (err) {
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Error al obtener carreras' }));
+      } else {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(resultados));
+      }
+    });
+    return;
+  }
+
+
+//ALUMNOS
   if (req.method === 'POST' && req.url === '/alumnos') {
     let body = '';
     req.on('data', chunk => body += chunk.toString());
