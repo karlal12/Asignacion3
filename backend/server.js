@@ -4,7 +4,7 @@ const alumnoDAO = require('./dataAccess/alumnoDAO')
 
 const server = http.createServer((req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS, PUT');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   if (req.method === 'OPTIONS') {
@@ -63,7 +63,34 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  //Actualizar una carrera
+  if (req.method === 'PUT' && req.url.startsWith('/carreras/')) {
+  let body = '';
+  req.on('data', chunk => body += chunk.toString());
+  req.on('end', () => {
+    const data = JSON.parse(body || '{}');
+    const id = req.url.split('/')[2];
+    
+    if (!data.titulo) {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ error: 'Falta el título' }));
+    }
 
+    carreraDAO.actualizarCarrera(
+      { id: id, titulo: data.titulo }, 
+      (err, result) => {
+        if (err) {
+          res.writeHead(500, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: err.message }));
+        } else {
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ success: true, affectedRows: result.affectedRows }));
+        }
+      }
+    );
+  });
+  return;
+}
 
   //ALUMNOS
   if (req.method === 'POST' && req.url === '/alumnos') {
@@ -115,6 +142,35 @@ const server = http.createServer((req, res) => {
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ success: true }));
       }
+    });
+    return;
+  }
+
+  // Actualizar alumno
+  if (req.method === 'PUT' && req.url.startsWith('/alumnos/')) {
+    let body = '';
+    req.on('data', chunk => body += chunk.toString());
+    req.on('end', () => {
+      const data = JSON.parse(body || '{}');
+      const id = req.url.split('/')[2];
+      
+      if (!data.nombre) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        return res.end(JSON.stringify({ error: 'Falta el nombre' }));
+      }
+
+      alumnoDAO.actualizarAlumno(
+        { id: id, nombre: data.nombre, carrera: data.carrera || null }, 
+        (err, result) => {
+          if (err) {
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: err.message }));
+          } else {
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ success: true, affectedRows: result.affectedRows }));
+          }
+        }
+      );
     });
     return;
   }

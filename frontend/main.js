@@ -200,3 +200,96 @@ function mostrarFormularioAsignar() {
   `;
   contenido.appendChild(form);
 }
+
+function mostrarFormularioCambiar() {
+  const url = entidadActual === 'carreras' 
+    ? 'http://localhost:3000/carreras' 
+    : 'http://localhost:3000/alumnos';
+
+  fetch(url)
+    .then(res => res.json())
+    .then(data => {
+      contenido.innerHTML = '';
+
+      const form = document.createElement('form');
+      const select = document.createElement('select');
+      const input = document.createElement('input');
+      const btn = document.createElement('button');
+
+      // Configurar el select
+      select.innerHTML = '<option value="">Seleccione uno</option>';
+      data.forEach(item => {
+        const option = document.createElement('option');
+        option.value = item.id;
+        option.textContent = entidadActual === 'carreras' 
+          ? `${item.id} - ${item.titulo}` 
+          : `${item.id} - ${item.nombre}`;
+        option.dataset.nombre = item.nombre || item.titulo;
+        select.appendChild(option);
+      });
+
+      // Configurar el input
+      input.type = 'text';
+      input.placeholder = `Nuevo nombre para ${entidadActual.slice(0, -1)}`;
+      input.required = true;
+
+      // Configurar el botón
+      btn.textContent = 'Actualizar';
+
+      // Cuando se selecciona un elemento, mostrar su nombre actual
+      select.addEventListener('change', () => {
+        if (select.value) {
+          input.value = select.options[select.selectedIndex].dataset.nombre;
+          input.focus();
+        } else {
+          input.value = '';
+        }
+      });
+
+      form.appendChild(select);
+      form.appendChild(input);
+      form.appendChild(btn);
+
+      form.addEventListener('submit', e => {
+        e.preventDefault();
+        const id = select.value;
+        const nuevoNombre = input.value;
+
+        if (!id) {
+          alert('Por favor seleccione un elemento');
+          return;
+        }
+
+        // Determinar el endpoint y body según la entidad
+        const endpoint = `${url}/${id}`;
+        const bodyData = entidadActual === 'carreras' 
+          ? { titulo: nuevoNombre } 
+          : { nombre: nuevoNombre };
+
+        fetch(endpoint, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(bodyData)
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            alert('Actualizado con éxito');
+            mostrarFormularioCambiar(); // Recargar el formulario
+          } else {
+            alert('Error al actualizar: ' + (data.error || 'Error desconocido'));
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          alert('Error al conectar con el servidor');
+        });
+      });
+
+      contenido.appendChild(form);
+    })
+    .catch(err => {
+      console.error(err);
+      alert('Error al cargar elementos para actualizar');
+    });
+}
