@@ -186,20 +186,87 @@ function mostrarListado() {
 
 
 function mostrarFormularioAsignar() {
-  const form = document.createElement('form');
-  form.innerHTML = `
-    <select>
-      <option>Alumno 1</option>
-      <option>Alumno 2</option>
-    </select>
-    <select>
-      <option>Carrera 1</option>
-      <option>Carrera 2</option>
-    </select>
-    <button>Asignar</button>
-  `;
-  contenido.appendChild(form);
+  const urlAlumnos = 'http://localhost:3000/alumnos';
+  const urlCarreras = 'http://localhost:3000/carreras';
+
+  Promise.all([
+    fetch(urlAlumnos).then(res => res.json()),
+    fetch(urlCarreras).then(res => res.json())
+  ])
+  .then(([alumnos, carreras]) => {
+    contenido.innerHTML = '';
+
+    const form = document.createElement('form');
+
+    const selectAlumnos = document.createElement('select');
+    selectAlumnos.required = true;
+    selectAlumnos.innerHTML = '<option value="">Seleccione un alumno</option>';
+    alumnos.forEach(alumno => {
+      const option = document.createElement('option');
+      option.value = alumno.id;
+      option.textContent = `${alumno.id} - ${alumno.nombre}`;
+      selectAlumnos.appendChild(option);
+    });
+
+    const selectCarreras = document.createElement('select');
+    selectCarreras.required = true;
+    selectCarreras.innerHTML = '<option value="">Seleccione una carrera</option>';
+    carreras.forEach(carrera => {
+      const option = document.createElement('option');
+      option.value = carrera.id;
+      option.textContent = `${carrera.id} - ${carrera.titulo}`;
+      selectCarreras.appendChild(option);
+    });
+
+    const btn = document.createElement('button');
+    btn.textContent = 'Asignar';
+
+    form.appendChild(selectAlumnos);
+    form.appendChild(selectCarreras);
+    form.appendChild(btn);
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+
+      const idAlumno = selectAlumnos.value;
+      const idCarrera = selectCarreras.value;
+
+      if (!idAlumno || !idCarrera) {
+        alert('Debe seleccionar un alumno y una carrera');
+        return;
+      }
+
+      fetch('http://localhost:3000/asignaciones', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          alumnoId: idAlumno,
+          carreraId: idCarrera
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          alert('Alumno asignado a carrera con éxito');
+          form.reset();
+        } else {
+          alert('Error al asignar: ' + (data.error || 'Error desconocido'));
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        alert('Error al conectar con el servidor');
+      });
+    });
+
+    contenido.appendChild(form);
+  })
+  .catch(err => {
+    console.error(err);
+    alert('Error al cargar alumnos o carreras');
+  });
 }
+
 
 function mostrarFormularioCambiar() {
   const url = entidadActual === 'carreras' 
