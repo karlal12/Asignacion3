@@ -48,7 +48,6 @@ function mostrarFormularioAgregar() {
     e.preventDefault();
     const nombre = form.querySelector('input').value;
 
-    //Entidad actual
     const endpoint = entidadActual === 'alumnos'
       ? 'http://localhost:3000/alumnos'
       : 'http://localhost:3000/carreras';
@@ -82,16 +81,67 @@ function mostrarFormularioAgregar() {
 }
 
 function mostrarFormularioBorrar() {
-  const form = document.createElement('form');
-  form.innerHTML = `
-    <select>
-      <option>Opción 1</option>
-      <option>Opción 2</option>
-    </select>
-    <button>Borrar</button>
-  `;
-  contenido.appendChild(form);
+  const url = entidadActual === 'carreras'
+    ? 'http://localhost:3000/carreras'
+    : 'http://localhost:3000/alumnos';
+
+  fetch(url)
+    .then(res => res.json())
+    .then(data => {
+      contenido.innerHTML = '';
+
+      const form = document.createElement('form');
+      const select = document.createElement('select');
+
+      data.forEach(item => {
+        const option = document.createElement('option');
+        option.value = item.id;
+        option.textContent = entidadActual === 'carreras'
+          ? `${item.id} - ${item.titulo}`
+          : `${item.id} - ${item.nombre}`;
+        select.appendChild(option);
+      });
+
+      const btn = document.createElement('button');
+      btn.type = 'submit';              
+      btn.textContent = 'Borrar';
+
+      form.appendChild(select);
+      form.appendChild(btn);
+
+      form.addEventListener('submit', e => {
+        e.preventDefault();
+        const id = select.value;
+        console.log('Borrando', `${url}/${id}`); 
+
+        fetch(`${url}/${id}`, { method: 'DELETE' })
+          .then(res => {
+            console.log('Respuesta cruda', res.status);
+            return res.json();
+          })
+          .then(data => {
+            console.log('Respuesta JSON', data);
+            if (data.success) {
+              alert('Eliminado con éxito');
+              mostrarListado(); 
+            } else {
+              alert('Error al borrar: ' + (data.error || 'desconocido'));
+            }
+          })
+          .catch(err => {
+            console.error(err);
+            alert('Error al borrar');
+          });
+      });
+
+      contenido.appendChild(form);
+    })
+    .catch(err => {
+      console.error(err);
+      alert('Error al cargar elementos para borrar');
+    });
 }
+
 
 function mostrarFormularioCambiar() {
   const form = document.createElement('form');

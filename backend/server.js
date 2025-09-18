@@ -4,29 +4,29 @@ const alumnoDAO = require('./dataAccess/alumnoDAO')
 
 const server = http.createServer((req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   if (req.method === 'OPTIONS') {
     res.writeHead(204); return res.end();
   }
-//CARRERAS
+  //CARRERAS
   if (req.method === 'POST' && req.url === '/carreras') {
     let body = '';
     req.on('data', chunk => body += chunk.toString());
     req.on('end', () => {
       const data = JSON.parse(body || '{}');
       if (!data.titulo) {
-        res.writeHead(400, {'Content-Type':'application/json'});
+        res.writeHead(400, { 'Content-Type': 'application/json' });
         return res.end(JSON.stringify({ error: 'Falta el título' }));
       }
 
       carreraDAO.insertarCarrera({ titulo: data.titulo }, (err, result) => {
         if (err) {
-          res.writeHead(500, {'Content-Type':'application/json'});
+          res.writeHead(500, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify({ error: err.message }));
         } else {
-          res.writeHead(200, {'Content-Type':'application/json'});
+          res.writeHead(200, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify({ id: result.insertId }));
         }
       });
@@ -47,24 +47,41 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // Eliminar una carrera
+  if (req.method === 'DELETE' && req.url.startsWith('/carreras/')) {
+    const id = req.url.split('/')[2];
+    carreraDAO.eliminarCarrera(id, (err) => {
+      if (err) {
+        console.error(err);
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Error al eliminar carrera' }));
+      } else {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true }));
+      }
+    });
+    return;
+  }
 
-//ALUMNOS
+
+
+  //ALUMNOS
   if (req.method === 'POST' && req.url === '/alumnos') {
     let body = '';
     req.on('data', chunk => body += chunk.toString());
     req.on('end', () => {
       const data = JSON.parse(body || '{}');
       if (!data.nombre) {
-        res.writeHead(400, {'Content-Type':'application/json'});
+        res.writeHead(400, { 'Content-Type': 'application/json' });
         return res.end(JSON.stringify({ error: 'Falta el nombre' }));
       }
 
       alumnoDAO.insertarAlumno({ nombre: data.nombre }, (err, result) => {
         if (err) {
-          res.writeHead(500, {'Content-Type':'application/json'});
+          res.writeHead(500, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify({ error: err.message }));
         } else {
-          res.writeHead(200, {'Content-Type':'application/json'});
+          res.writeHead(200, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify({ id: result.insertId }));
         }
       });
@@ -72,7 +89,7 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-    //Listar alumnos
+  //Listar alumnos
   if (req.method === 'GET' && req.url === '/alumnos') {
     alumnoDAO.obtenerTodos((err, resultados) => {
       if (err) {
@@ -86,8 +103,23 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // Eliminar alumno 
+  if (req.method === 'DELETE' && req.url.startsWith('/alumnos/')) {
+    const id = req.url.split('/')[2];
+    alumnoDAO.eliminarAlumno(id, (err) => {
+      if (err) {
+        console.error(err);
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Error al eliminar alumno' }));
+      } else {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true }));
+      }
+    });
+    return;
+  }
 
-  res.writeHead(404, {'Content-Type':'application/json'});
+  res.writeHead(404, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify({ error: 'No encontrado' }));
 });
 
