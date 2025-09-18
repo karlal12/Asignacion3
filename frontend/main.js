@@ -3,7 +3,6 @@ const accionesBotones = document.getElementById('accionesBotones');
 const contenido = document.getElementById('contenido');
 let entidadActual = null;
 
-// Al hacer clic en una entidad (Alumnos / Carreras / Asignar)
 document.querySelectorAll('.menu button').forEach(btn => {
   btn.addEventListener('click', () => {
     entidadActual = btn.dataset.entidad;
@@ -20,7 +19,7 @@ document.querySelectorAll('.menu button').forEach(btn => {
   });
 });
 
-// Al hacer clic en acción (Agregar / Borrar / Cambiar / Ver)
+
 document.querySelectorAll('#accionesBotones button').forEach(btn => {
   btn.addEventListener('click', () => {
     const accion = btn.dataset.accion;
@@ -32,8 +31,6 @@ document.querySelectorAll('#accionesBotones button').forEach(btn => {
     if (accion === 'ver') mostrarListado();
   });
 });
-
-// ---------- FORMULARIOS ----------
 
 function mostrarFormularioAgregar() {
   const form = document.createElement('form');
