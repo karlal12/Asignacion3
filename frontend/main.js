@@ -103,7 +103,6 @@ function mostrarFormularioBorrar() {
       });
 
       const btn = document.createElement('button');
-      btn.type = 'submit';              
       btn.textContent = 'Borrar';
 
       form.appendChild(select);
@@ -112,21 +111,12 @@ function mostrarFormularioBorrar() {
       form.addEventListener('submit', e => {
         e.preventDefault();
         const id = select.value;
-        console.log('Borrando', `${url}/${id}`); 
 
         fetch(`${url}/${id}`, { method: 'DELETE' })
-          .then(res => {
-            console.log('Respuesta cruda', res.status);
-            return res.json();
-          })
-          .then(data => {
-            console.log('Respuesta JSON', data);
-            if (data.success) {
-              alert('Eliminado con éxito');
-              mostrarListado(); 
-            } else {
-              alert('Error al borrar: ' + (data.error || 'desconocido'));
-            }
+          .then(res => res.json())
+          .then(() => {
+            alert('Eliminado con éxito');
+            mostrarListado(); // refrescar listado automáticamente
           })
           .catch(err => {
             console.error(err);
