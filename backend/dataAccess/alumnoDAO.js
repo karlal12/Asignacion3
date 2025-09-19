@@ -3,16 +3,43 @@ const db = require('../config/db');
 class AlumnoDao {
     constructor() {}
 
-    // Insertar un nuevo alumno
-    insertarAlumno(alumno, callback) {
-        const insertQuery = 'INSERT INTO alumnos (nombre) VALUES (?)';
-        db.query(insertQuery, [alumno.nombre], (err, result) => {
+    ejecutarConTransaccion(operaciones, callback) {
+        db.beginTransaction((err) => {
             if (err) {
-                callback(err);
-            } else {
-                callback(null, result);
+                return callback(err);
             }
+
+            operaciones((error, resultados) => {
+                if (error) {
+                    return db.rollback(() => {
+                        callback(error);
+                    });
+                }
+
+                db.commit((commitError) => {
+                    if (commitError) {
+                        return db.rollback(() => {
+                            callback(commitError);
+                        });
+                    }
+                    callback(null, resultados);
+                });
+            });
         });
+    }
+
+    // Insertar un nuevo alumno con transacción
+    insertarAlumno(alumno, callback) {
+        this.ejecutarConTransaccion((transaccionCallback) => {
+            const insertQuery = 'INSERT INTO alumnos (nombre, carrera) VALUES (?, ?)';
+            db.query(insertQuery, [alumno.nombre, alumno.carrera], (err, result) => {
+                if (err) {
+                    transaccionCallback(err);
+                } else {
+                    transaccionCallback(null, result);
+                }
+            });
+        }, callback);
     }
 
     // Seleccionar todos los alumnos
@@ -27,29 +54,46 @@ class AlumnoDao {
         });
     }
 
-    // Actualizar un alumno por ID
+    // Actualizar un alumno por ID con transacción
     actualizarAlumno(alumno, callback) {
-        const updateQuery = 'UPDATE alumnos SET nombre = ?, carrera = ? WHERE id = ?';
-        db.query(updateQuery, [alumno.nombre, alumno.carrera, alumno.id], (err, result) => {
+        this.ejecutarConTransaccion((transaccionCallback) => {
+            const updateQuery = 'UPDATE alumnos SET nombre = ?, carrera = ? WHERE id = ?';
+            db.query(updateQuery, [alumno.nombre, alumno.carrera, alumno.id], (err, result) => {
+                if (err) {
+                    transaccionCallback(err);
+                } else {
+                    transaccionCallback(null, result);
+                }
+            });
+        }, callback);
+    }
+
+    // Eliminar un alumno por ID con transacción
+    eliminarAlumno(id, callback) {
+        this.ejecutarConTransaccion((transaccionCallback) => {
+            const deleteQuery = 'DELETE FROM alumnos WHERE id = ?';
+            db.query(deleteQuery, [id], (err, result) => {
+                if (err) {
+                    transaccionCallback(err);
+                } else {
+                    transaccionCallback(null, result);
+                }
+            });
+        }, callback);
+    }
+
+    // Obtener un alumno por ID (sin transacción ya que es solo lectura)
+    obtenerAlumnoPorId(id, callback) {
+        const selectQuery = 'SELECT * FROM alumnos WHERE id = ?';
+        db.query(selectQuery, [id], (err, results) => {
             if (err) {
-                callback(err);
+                callback(err, null);
             } else {
-                callback(null, result);
+                callback(null, results[0]);
             }
         });
     }
 
-    // Eliminar un alumno por ID
-    eliminarAlumno(id, callback) {
-        const deleteQuery = 'DELETE FROM alumnos WHERE id = ?';
-        db.query(deleteQuery, [id], (err, result) => {
-            if (err) {
-                callback(err);
-            } else {
-                callback(null, result);
-            }
-        });
-    }
 }
 
 module.exports = new AlumnoDao();
